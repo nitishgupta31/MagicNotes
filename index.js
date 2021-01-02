@@ -29,7 +29,16 @@ addBtn.addEventListener('click', function (e) {
     }
     notesObj.push(addTxt.value);
 
-
+    let addTitle = document.getElementById('addTitle');
+    let title = localStorage.getItem("title");
+    if (title == null) {
+        titleObj = []
+    }
+    else {
+        titleObj = JSON.parse(title)
+    }
+    titleObj.push(addTitle.value);
+    localStorage.setItem("title", JSON.stringify(titleObj));
     /////////////////////////////////////////////////////////////////
     //--------MARKING NOTES PART-----------------------------------
     let marked = localStorage.getItem("marked");
@@ -45,9 +54,10 @@ addBtn.addEventListener('click', function (e) {
     //-----------------------------------------------------------------
     ///////////////////////////////////////////////////////////////////
 
-    localStorage.setItem("marked", JSON.stringify(markedObj));
+
     localStorage.setItem("notes", JSON.stringify(notesObj));
     addTxt.value = ""
+    addTitle.value = ""
     showNotes(); // showing cards
 })
 
@@ -60,12 +70,22 @@ function showNotes() {
     } else {
         notesObj = JSON.parse(notes);
     }
+
+
+    let title = localStorage.getItem("title");
+    if (title == null) {
+        titleObj = []
+    }
+    else {
+        titleObj = JSON.parse(title)
+    }
+
     let html = "";
     notesObj.forEach(function (element, index) {
         html += `
               <div class="noteCard my-2 mx-2 card" style="width: 18rem;">
                     <div class="card-body">
-                        <h5 class="card-title">Note ${index + 1}</h5>
+                        <h5 class="card-title">Note <br>${titleObj[index]}</h5>
                         <p class="card-text"> ${element}</p>
                         <button id="${index}"onclick="deleteNote(this.id)" class="btn btn-outline-primary my-2 btn-block btn-md" style="display:block">Delete Note</button>
 
@@ -95,7 +115,9 @@ function deleteNote(index) {
     notesObj.splice(index, 1);
     localStorage.setItem("notes", JSON.stringify(notesObj));
     markedObj.splice(index, 1);
+    titleObj.splice(index, 1);
     localStorage.setItem("marked", JSON.stringify(markedObj));
+    localStorage.setItem("title", JSON.stringify(titleObj));
     showNotes();
 }
 
@@ -143,7 +165,7 @@ function showMarked() {
     notesObj.forEach(function (element, index) {
         if (markedObj[index] == 1) {
             let element = document.getElementById(index).nextElementSibling
-            element.style.background = "orange";
+            element.style.background = "#ffd11a";
         }
         else {
             let element = document.getElementById(index).nextElementSibling
@@ -151,7 +173,27 @@ function showMarked() {
         }
     });
 }
+setInterval(displayClock, 500)
+function displayClock() {
+    // var d = new Date()
+    let date = new Date();
+    let hrs = date.getHours();
+    let mins = date.getMinutes();
+    let secs = date.getSeconds();
+    let period = "AM";
 
+    if (hrs == 0) hrs = 12;
+    if (hrs > 12) {
+        hrs = hrs - 12;
+        period = "PM";
+    }
 
+    hrs = hrs < 10 ? `0${hrs}` : hrs;
+    mins = mins < 10 ? `0${mins}` : mins;
+    secs = secs < 10 ? `0${secs}` : secs;
 
+    let time = `${hrs}:${mins}:${secs} ${period}`;
+    document.getElementById("date").innerText = time
+
+}
 
